@@ -1,0 +1,53 @@
++++++Install gradle:
+sudo add-apt-repository ppa:cwchien/gradle
+sudo apt-get update
+sudo apt-get install gradle
+
++++++Install JAVA
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+
+++++++Download Cloud Foudry Command Line Interface, Unzip it and remove tar file
+wget -O cf.tgz 'https://cli.run.pivotal.io/stable?release=linux64-binary&source=github'
+tar xvzf cf.tgz
+sudo mv ./cf /usr/local/bin
+rm cf.tgz
+
+++++++Verify CF CLI install
+cf -v
+
++++++++Connect to Pivotal Web Services (PWS)
+cf api --skip-ssl-validation api.ng.bluemix.net
+	++Login into Pivotal Web Services
+	cf login
+
+++++++ Build Java App with gradle
+./gradlew assemble
+
+++++++ Push App to Pivotal Web Services (PWS)
+cf push csmr_music -m 512MB -b java_buildpack -p build/libs/spring-music.jar --no-start
+
+++++++ Provision MySQL service
+cf create-service cleardb cb5 musicdb
+
+****** Add MSQL Service as backing DB service to app
+cf bind-service csmr_music musicdb
+ +++ TIP: Use 'cf restage csmr_music' to ensure your env variable changes take effect
+ 
+ 
+***** Deploy app to PWS
+cf push csmr_music -m 512MB -b java_buildpack -p build/libs/spring-music.jar
+
+
+---- URL https://csmr-music-anacusic-sculduddery.mybluemix.net/
+
+**** SCALR App
+cf scale csmr_music -i 2
+cf scale csmr_music -m 1054
+cf marketplace
+cf marketplace -s cleardb
+cf logs csmr_music
+cf buildpacks
+cf env csmr_music
+
